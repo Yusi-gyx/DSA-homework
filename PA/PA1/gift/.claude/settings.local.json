@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(g++ -O2 -Wall -o /tmp/gift_test /home/yusi/projects/cpp/dsa/PA/PA1/gift/main.cpp)",
+      "Bash(/tmp/gift_test)",
+      "Skill(claude-api)",
+      "Bash(g++ -std=c++17 -Wall -Wextra -pedantic -O0 main.cpp -o /tmp/gift-check)",
+      "Bash(/tmp/gift-check)"
+    ]
+  }
+}
