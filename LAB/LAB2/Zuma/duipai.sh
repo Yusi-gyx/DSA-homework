@@ -10,6 +10,9 @@
 #   ALPHA      字符集大小              默认 3
 #   MAX_LEN    初始序列最大长度         默认 30
 #   MAX_M      操作次数上限             默认 20
+#   MIN_LEN    初始序列最小长度         默认 0
+#   POS_MODE   插入位置分布            默认 uniform（front/back/edge/block）
+#   COLOR_MODE 插入颜色分布            默认 uniform（pair）
 #   TIMEOUT    单次运行超时（秒）       默认 5
 #   CXX        C++ 编译器              默认 g++
 #   CXXFLAGS   编译选项                默认 "-O2 -std=c++17"
@@ -33,6 +36,9 @@ SEED_BASE=${SEED_BASE:-1}
 ALPHA=${ALPHA:-3}
 MAX_LEN=${MAX_LEN:-30}
 MAX_M=${MAX_M:-20}
+MIN_LEN=${MIN_LEN:-0}
+POS_MODE=${POS_MODE:-uniform}
+COLOR_MODE=${COLOR_MODE:-uniform}
 TIMEOUT=${TIMEOUT:-5}
 
 # 在后台运行并等待，避免 shell 打印 "Aborted" 之类的信号通知
@@ -63,7 +69,7 @@ if [ ${#progs[@]} -eq 0 ]; then
     exit 1
 fi
 
-echo "==> 开始对拍：N=$N, ALPHA=$ALPHA, MAX_LEN=$MAX_LEN, MAX_M=$MAX_M"
+echo "==> 开始对拍：N=$N, ALPHA=$ALPHA, MAX_LEN=$MAX_LEN, MAX_M=$MAX_M, POS=$POS_MODE, COLOR=$COLOR_MODE"
 echo
 
 total=0
@@ -75,7 +81,8 @@ for ((k = 1; k <= N; k++)); do
     ans="$BUILD/case.ans"
     base_out="$BUILD/base.out"
 
-    python3 gen.py "$seed" "$ALPHA" "$MAX_LEN" "$MAX_M" "$ans" > "$input" || {
+    python3 gen.py "$seed" "$ALPHA" "$MAX_LEN" "$MAX_M" "$ans" \
+        "$POS_MODE" "$COLOR_MODE" "$MIN_LEN" > "$input" || {
         echo "    !! 第 $k 轮：生成器失败（seed=$seed）"
         continue
     }
