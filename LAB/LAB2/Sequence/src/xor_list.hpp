@@ -1,7 +1,8 @@
 #pragma once
 #include <cstddef>
 #include <cstdint>
-#include <stdexcept>
+#include <iterator>
+#include <utility>
 
 // ============================================================================
 // XorLinkedList - XOR 双向链表
@@ -36,9 +37,7 @@ class XorLinkedList {
     
     // 已知 prev 和 xor_ptr，求 next
     static Node* get_next(Node* prev, Node* cur) {
-        // TODO: 根据前一个节点和当前节点计算下一个节点
-        // 需要利用当前节点中保存的 xor_ptr
-        throw std::runtime_error("Not implemented: XorLinkedList::get_next");
+        return int_to_ptr(cur->xor_ptr ^ ptr_to_int(prev));
     }
     
     // 获取第 index 个节点，返回 (prev, cur)
@@ -57,18 +56,15 @@ public:
     XorLinkedList() : head_(nullptr), tail_(nullptr), size_(0) {}
     
     ~XorLinkedList() {
-        // 本拓展任务未完成时 get_next 会抛出异常, 忽略
-        try {
-            Node* prev = nullptr;
-            Node* cur = head_;
-            while (cur) {
-                Node* next = get_next(prev, cur);
-                delete cur;
-                prev = cur;
-                cur = next;
-            }
-        } catch (...) {
+        Node* prev = nullptr;
+        Node* cur = head_;
+        while (cur) {
+            Node* next = get_next(prev, cur);
+            delete prev;
+            prev = cur;
+            cur = next;
         }
+        delete prev;
     }
     
     XorLinkedList(const XorLinkedList&) = delete;
@@ -95,9 +91,23 @@ public:
     }
     
     void remove(int index) {
-        // TODO: 删除位置 index 的元素
-        // 需要正确更新相邻节点的 xor_ptr
-        throw std::runtime_error("Not implemented: XorLinkedList::remove");
+        auto [prev, node] = get_node(index);
+        Node* next = get_next(prev, node);
+
+        if (prev) {
+            prev->xor_ptr ^= xor_ptrs(node, next);
+        } else {
+            head_ = next;
+        }
+
+        if (next) {
+            next->xor_ptr ^= xor_ptrs(node, prev);
+        } else {
+            tail_ = prev;
+        }
+
+        delete node;
+        --size_;
     }
     
     T query(int index) const {
